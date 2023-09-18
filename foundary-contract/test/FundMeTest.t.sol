@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.19;
 
 import {Test, console} from "forge-std/Test.sol";
 import {FundMe} from "../src/FundMe.sol";
@@ -35,4 +35,29 @@ contract FundMeTest is Test {
 
         assertEq(fundMe.i_owner(), address(this));
     }
+
+    function testPriceFeedVersionIsAccurate() public {
+        uint256 version = fundMe.getVersion();
+        assertEq(version, 4);
+    }
+
+    // function testMsgSenderShouldFund() public {
+    //     // Arrange
+    //     uint initialBalance = address(this).balance;
+    //     uint valueToSend = 1 ether; // or any value you want to test with
+
+    //     console.log("initialBalance", initialBalance);
+    //     console.log("valueToSend", valueToSend);
+
+    //     // Act
+    //     fundMe.fund{value: valueToSend}();
+
+    //     // Assert
+
+    //     console.log(address(fundMe).balance, initialBalance + valueToSend);
+    //     console.log(fundMe.addressToAmountFunded(address(this)), valueToSend);
+    //     assertEq(valueToSend, 1000000000000000000);
+    //     // assertEq(address(fundMe).balance, initialBalance + valueToSend);
+    //     // assertEq(fundMe.addressToAmountFunded(address(this)), valueToSend);
+    // }
 }
