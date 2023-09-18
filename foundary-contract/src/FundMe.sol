@@ -3,6 +3,7 @@
 pragma solidity ^0.8.18;
 
 import {PriceConverter} from "./PriceConverter.sol";
+import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
 error FundMe__NotOwner();
 
@@ -13,7 +14,6 @@ contract FundMe {
     address[] public funders;
     mapping(address funder => uint256 amountFunded)
         public addressToAmountFunded;
-
     address public immutable i_owner;
 
     constructor() {
@@ -23,7 +23,7 @@ contract FundMe {
     function fund() public payable {
         require(
             msg.value.getConversionRate() > MIN_USD,
-            "Didn't send enough ETH"
+            "Didnt send enough ETH"
         );
         funders.push(msg.sender);
         addressToAmountFunded[msg.sender] += msg.value;
@@ -67,5 +67,13 @@ contract FundMe {
             revert FundMe__NotOwner();
         }
         _; // represents the actual code of the function
+    }
+
+    // Continue with Alchemy as fork test to solve this address - anvil doesnt have this address
+    function getVersion() public view returns (uint256) {
+        AggregatorV3Interface priceFeed = AggregatorV3Interface(
+            0x694AA1769357215DE4FAC081bf1f309aDC325306
+        );
+        return priceFeed.version();
     }
 }
