@@ -15,14 +15,16 @@ contract FundMe {
     mapping(address funder => uint256 amountFunded)
         public addressToAmountFunded;
     address public immutable i_owner;
+    AggregatorV3Interface private s_priceFeed;
 
-    constructor() {
+    constructor(address priceFeed) {
         i_owner = msg.sender;
+        s_priceFeed = AggregatorV3Interface(priceFeed);
     }
 
     function fund() public payable {
         require(
-            msg.value.getConversionRate() > MIN_USD,
+            msg.value.getConversionRate(s_priceFeed) > MIN_USD,
             "Didnt send enough ETH"
         );
         funders.push(msg.sender);
@@ -71,9 +73,6 @@ contract FundMe {
 
     // Continue with Alchemy as fork test to solve this address - anvil doesnt have this address
     function getVersion() public view returns (uint256) {
-        AggregatorV3Interface priceFeed = AggregatorV3Interface(
-            0x694AA1769357215DE4FAC081bf1f309aDC325306
-        );
-        return priceFeed.version();
+        return s_priceFeed.version();
     }
 }

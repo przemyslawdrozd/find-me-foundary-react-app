@@ -8,13 +8,17 @@ import {FundMe} from "../src/FundMe.sol";
 // To run tests with logs
 // forge test -vv
 
+// -vvv shows stack trace
+
+// forge test --match-test testPriceFeedVersionIsAccurate -vvv --fork-url $SEPOLIA_RPC_URL
+
 contract FundMeTest is Test {
     FundMe fundMe;
 
     // This (FundMeTest) contract has created this FundMe contract
     // so the owner of it is FundMeTest
     function setUp() external {
-        fundMe = new FundMe();
+        fundMe = new FundMe(0x694AA1769357215DE4FAC081bf1f309aDC325306);
     }
 
     function testMinDollarIsFive() public {
@@ -56,8 +60,8 @@ contract FundMeTest is Test {
 
     //     console.log(address(fundMe).balance, initialBalance + valueToSend);
     //     console.log(fundMe.addressToAmountFunded(address(this)), valueToSend);
-    //     assertEq(valueToSend, 1000000000000000000);
-    //     // assertEq(address(fundMe).balance, initialBalance + valueToSend);
-    //     // assertEq(fundMe.addressToAmountFunded(address(this)), valueToSend);
+    //     // assertEq(valueToSend, 1000000000000000000);
+    //     assertEq(address(fundMe).balance, initialBalance + valueToSend);
+    //     assertEq(fundMe.addressToAmountFunded(address(this)), valueToSend);
     // }
 }
