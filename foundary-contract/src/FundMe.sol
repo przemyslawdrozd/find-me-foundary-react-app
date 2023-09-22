@@ -11,11 +11,13 @@ contract FundMe {
     using PriceConverter for uint256;
 
     uint256 public constant MIN_USD = 5e18;
-    address[] public funders;
-    mapping(address funder => uint256 amountFunded)
-        public addressToAmountFunded;
+    address[] private s_funders;
+
     address public immutable i_owner;
     AggregatorV3Interface private s_priceFeed;
+
+    mapping(address funder => uint256 amountFunded)
+        private s_addressToAmountFunded;
 
     constructor(address priceFeed) {
         i_owner = msg.sender;
@@ -27,20 +29,20 @@ contract FundMe {
             msg.value.getConversionRate(s_priceFeed) > MIN_USD,
             "Didnt send enough ETH"
         );
-        funders.push(msg.sender);
-        addressToAmountFunded[msg.sender] += msg.value;
+        s_funders.push(msg.sender);
+        s_addressToAmountFunded[msg.sender] += msg.value;
     }
 
     function withdraw() public isOwner {
         for (
             uint256 funderIndex = 0;
-            funderIndex < funders.length;
+            funderIndex < s_funders.length;
             funderIndex++
         ) {
-            address funder = funders[funderIndex];
-            addressToAmountFunded[funder] = 0;
+            address funder = s_funders[funderIndex];
+            s_addressToAmountFunded[funder] = 0;
         }
-        funders = new address[](0);
+        s_funders = new address[](0);
 
         // transfer will throw when failed
         // payable(msg.sender).transfer(address(this).balance);
@@ -71,8 +73,34 @@ contract FundMe {
         _; // represents the actual code of the function
     }
 
-    // Continue with Alchemy as fork test to solve this address - anvil doesnt have this address
+    /** Getter Functions */
+
+    /**
+     * @notice Gets the amount that an address has funded
+     *  @param fundingAddress the address of the funder
+     *  @return the amount funded
+     */
+    function getAddressToAmountFunded(
+        address fundingAddress
+    ) public view returns (uint256) {
+        return s_addressToAmountFunded[fundingAddress];
+    }
+
+    // Continue with Alchemy as fork test to solve this address
+    // anvil doesnt have this address
     function getVersion() public view returns (uint256) {
         return s_priceFeed.version();
+    }
+
+    function getFunder(uint256 index) public view returns (address) {
+        return s_funders[index];
+    }
+
+    function getOwner() public view returns (address) {
+        return i_owner;
+    }
+
+    function getPriceFeed() public view returns (AggregatorV3Interface) {
+        return s_priceFeed;
     }
 }
