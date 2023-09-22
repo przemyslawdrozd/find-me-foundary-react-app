@@ -16,12 +16,17 @@ import {DeployFundMe} from "../script/DeployFundMe.s.sol";
 contract FundMeTest is Test {
     FundMe fundMe;
 
+    address USER = makeAddr("user");
+    uint256 constant SEND_VALUE = 0.5 ether;
+    uint256 constant STARTING_BALANCE = 10 ether;
+
     // This (FundMeTest) contract has created this FundMe contract
     // so the owner of it is FundMeTest
     function setUp() external {
         // fundMe = new FundMe(0x694AA1769357215DE4FAC081bf1f309aDC325306);
         DeployFundMe deplyFundMe = new DeployFundMe();
         fundMe = deplyFundMe.run();
+        vm.deal((USER), STARTING_BALANCE);
     }
 
     function testMinDollarIsFive() public {
@@ -49,23 +54,20 @@ contract FundMeTest is Test {
         assertEq(version, 4);
     }
 
-    // function testMsgSenderShouldFund() public {
-    //     // Arrange
-    //     uint initialBalance = address(this).balance;
-    //     uint valueToSend = 1 ether; // or any value you want to test with
+    function testFundFailsWithoutEnoughFeeds() public {
+        vm.expectRevert();
+        fundMe.fund();
+    }
 
-    //     console.log("initialBalance", initialBalance);
-    //     console.log("valueToSend", valueToSend);
+    function testFundUpdatesFundedDataStructure() public {
+        // Arrange
+        vm.prank(USER); // The next TX will be sent by USER
 
-    //     // Act
-    //     fundMe.fund{value: valueToSend}();
+        // Act
+        fundMe.fund{value: SEND_VALUE}();
 
-    //     // Assert
-
-    //     console.log(address(fundMe).balance, initialBalance + valueToSend);
-    //     console.log(fundMe.addressToAmountFunded(address(this)), valueToSend);
-    //     // assertEq(valueToSend, 1000000000000000000);
-    //     assertEq(address(fundMe).balance, initialBalance + valueToSend);
-    //     assertEq(fundMe.addressToAmountFunded(address(this)), valueToSend);
-    // }
+        // Assert
+        uint256 amountFunded = fundMe.getAddressToAmountFunded(USER);
+        assertEq(amountFunded, SEND_VALUE);
+    }
 }
