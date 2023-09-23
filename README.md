@@ -1,1 +1,1 @@
-# find-me-foundary-react-app
+# fund-me-foundary-react-app
