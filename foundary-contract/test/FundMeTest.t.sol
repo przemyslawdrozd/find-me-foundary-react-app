@@ -19,6 +19,7 @@ contract FundMeTest is Test {
     address USER = makeAddr("user");
     uint256 constant SEND_VALUE = 0.5 ether;
     uint256 constant STARTING_BALANCE = 10 ether;
+    uint256 constant GAS_PRICE = 1;
 
     // This (FundMeTest) contract has created this FundMe contract
     // so the owner of it is FundMeTest
@@ -109,9 +110,18 @@ contract FundMeTest is Test {
 
         console.log("startingOwnerBalance", startingOwnerBalance);
         console.log("stargingFundMeBalance", stargingFundMeBalance);
+
         // Act
-        vm.prank(msg.sender);
+        uint256 gasStart = gasleft();
+        vm.txGasPrice(GAS_PRICE);
+        vm.prank(msg.sender); // c: 200
         fundMe.withdraw();
+
+        uint256 gasEnd = gasleft(); // 800
+        uint256 gasUsed = (gasStart - gasEnd) * tx.gasprice;
+
+        // forge snapshot - to check spent gas
+        console.log("gasUsed", gasUsed);
 
         // Assert
         uint256 endingOwnerBalance = fundMe.getOwner().balance;
