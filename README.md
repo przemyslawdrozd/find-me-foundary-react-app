@@ -1,4 +1,4 @@
-# fund-me-foundary-react-app
+# Foundry FundMe React App
 Repo contains foundry smart contract and React client to interact with
 
 # FundMe smart contract 
