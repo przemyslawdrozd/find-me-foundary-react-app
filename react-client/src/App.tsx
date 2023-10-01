@@ -25,7 +25,7 @@ function App() {
 
     console.debug('Connected');
     const accounts = await ethereum.request({ method: 'eth_accounts' });
-    console.log(accounts);
+    console.debug('accs', accounts);
   };
 
   const withdraw = async () => {
@@ -55,12 +55,12 @@ function App() {
       await listenForTransactionMine(transactionResponse, provider);
       // await transactionResponse.wait(1)
     } catch (error) {
-      console.log(error);
+      console.log('Withdraw issue', error);
     }
   };
 
   const fund = async () => {
-    console.log(`Funding with ${ethAmount}...`);
+    console.debug(`Funding with ${ethAmount}...`);
     if (typeof window.ethereum === 'undefined') return console.debug('Require install metamask');
 
     try {
@@ -72,7 +72,7 @@ function App() {
       });
       await listenForTransactionMine(transactionResponse, provider);
     } catch (error) {
-      console.log(error);
+      console.log('Fund issue', error);
     }
   };
 
@@ -84,7 +84,7 @@ function App() {
       const balance = await provider.getBalance(contractAddress);
       console.debug('Balance is', ethers.utils.formatEther(balance));
     } catch (error) {
-      console.log(error);
+      console.log('Get balance issue', error);
     }
   }
 
