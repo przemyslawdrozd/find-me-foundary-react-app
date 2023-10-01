@@ -9,91 +9,82 @@ function App() {
   const connectedAddress = useRef<string | null>(null);
 
   const connect = async () => {
-    if (typeof window.ethereum !== 'undefined') {
-      const { ethereum } = window;
-      try {
-        const request = { method: 'eth_requestAccounts' };
-        const ethRequest = (await ethereum.request(request)) as string[] | null;
-        connectedAddress.current = ethRequest && ethRequest[0];
+    if (typeof window.ethereum === 'undefined') return console.warn('Require install metamask');
+    const { ethereum } = window;
+    try {
+      const request = { method: 'eth_requestAccounts' };
+      const ethRequest = (await ethereum.request(request)) as string[] | null;
+      connectedAddress.current = ethRequest && ethRequest[0];
 
-        setConnected(true);
-      } catch (error) {
-        console.log('Connect issue', error);
-        setConnected(false);
-        connectedAddress.current = null;
-      }
-
-      console.debug('Connected');
-      const accounts = await ethereum.request({ method: 'eth_accounts' });
-      console.log(accounts);
-    } else {
-      console.warn('Require install metamask');
+      setConnected(true);
+    } catch (error) {
+      console.log('Connect issue', error);
+      setConnected(false);
+      connectedAddress.current = null;
     }
+
+    console.debug('Connected');
+    const accounts = await ethereum.request({ method: 'eth_accounts' });
+    console.log(accounts);
   };
 
   const withdraw = async () => {
     console.log(`Withdrawing...`);
-    if (typeof window.ethereum !== 'undefined') {
-      const ethereum = window.ethereum;
+    if (typeof window.ethereum === 'undefined') return console.warn('Require install metamask');
 
-      const provider = new ethers.providers.Web3Provider({
-        send: (request, callback) =>
-          ethereum.request(request).then(
-            (result) => callback(null, { result }),
-            (error) => callback(error, null),
-          ),
-        sendAsync: (request, callback) =>
-          ethereum.request(request).then(
-            (result) => callback(null, { result }),
-            (error) => callback(error, null),
-          ),
-        isMetaMask: ethereum.isMetaMask,
-      });
-      await provider.send('eth_requestAccounts', []);
-      const signer = provider.getSigner();
-      const contract = new ethers.Contract(contractAddress, abi, signer);
-      try {
-        const transactionResponse = await contract.withdraw();
-        await listenForTransactionMine(transactionResponse, provider);
-        // await transactionResponse.wait(1)
-      } catch (error) {
-        console.log(error);
-      }
-    } else {
-      console.warn('Require install metamask');
+    const ethereum = window.ethereum;
+
+    const provider = new ethers.providers.Web3Provider({
+      send: (request, callback) =>
+        ethereum.request(request).then(
+          (result) => callback(null, { result }),
+          (error) => callback(error, null),
+        ),
+      sendAsync: (request, callback) =>
+        ethereum.request(request).then(
+          (result) => callback(null, { result }),
+          (error) => callback(error, null),
+        ),
+      isMetaMask: ethereum.isMetaMask,
+    });
+    await provider.send('eth_requestAccounts', []);
+    const signer = provider.getSigner();
+    const contract = new ethers.Contract(contractAddress, abi, signer);
+    try {
+      const transactionResponse = await contract.withdraw();
+      await listenForTransactionMine(transactionResponse, provider);
+      // await transactionResponse.wait(1)
+    } catch (error) {
+      console.log(error);
     }
   };
 
   const fund = async () => {
     console.log(`Funding with ${ethAmount}...`);
-    if (typeof window.ethereum !== 'undefined') {
+    if (typeof window.ethereum === 'undefined') return console.debug('Require install metamask');
+
+    try {
       const provider = new ethers.providers.Web3Provider(window.ethereum as any);
       const signer = provider.getSigner();
       const contract = new ethers.Contract(contractAddress, abi, signer);
-      try {
-        const transactionResponse = await contract.fund({
-          value: ethers.utils.parseEther(ethAmount),
-        });
-        await listenForTransactionMine(transactionResponse, provider);
-      } catch (error) {
-        console.log(error);
-      }
-    } else {
-      console.debug('Require install metamask');
+      const transactionResponse = await contract.fund({
+        value: ethers.utils.parseEther(ethAmount),
+      });
+      await listenForTransactionMine(transactionResponse, provider);
+    } catch (error) {
+      console.log(error);
     }
   };
 
   async function getBalance() {
-    if (typeof window.ethereum !== 'undefined') {
+    if (typeof window.ethereum === 'undefined') return console.warn('Require install metamask');
+
+    try {
       const provider = new ethers.providers.Web3Provider(window.ethereum as any);
-      try {
-        const balance = await provider.getBalance(contractAddress);
-        console.debug('Balance is', ethers.utils.formatEther(balance));
-      } catch (error) {
-        console.log(error);
-      }
-    } else {
-      console.warn('Require install metamask');
+      const balance = await provider.getBalance(contractAddress);
+      console.debug('Balance is', ethers.utils.formatEther(balance));
+    } catch (error) {
+      console.log(error);
     }
   }
 
