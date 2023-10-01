@@ -6,18 +6,21 @@ function App() {
   const [connected, setConnected] = useState<boolean>(false);
   const [ethAmount, setEthAmount] = useState<string>('0.1');
 
-  const connectedAddress = useRef<string>('');
+  const connectedAddress = useRef<string | null>(null);
 
   const connect = async () => {
     if (typeof window.ethereum !== 'undefined') {
       const { ethereum } = window;
       try {
-        const ethRequest = await ethereum.request({ method: 'eth_requestAccounts' });
-        console.log('ethRequest', ethRequest);
+        const request = { method: 'eth_requestAccounts' };
+        const ethRequest = (await ethereum.request(request)) as string[] | null;
+        connectedAddress.current = ethRequest && ethRequest[0];
+
         setConnected(true);
       } catch (error) {
         console.log('Connect issue', error);
         setConnected(false);
+        connectedAddress.current = null;
       }
 
       console.debug('Connected');
@@ -107,6 +110,7 @@ function App() {
   return (
     <>
       <h1>Fund Me App</h1>
+      {connected ? <h2>Connected wallet: {connectedAddress.current}</h2> : <h2>Not connected</h2>}
       <button onClick={connect}>{connected ? 'Connected' : 'Connect'}</button>
       <button onClick={getBalance}>Get Balance</button>
       <button onClick={withdraw}>Withdraw</button>
