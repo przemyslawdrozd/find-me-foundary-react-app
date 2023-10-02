@@ -9,3 +9,8 @@ comming soon
 
 # Quickstart
 Fund more details in makefile
+
+# function selector
+
+During transaction process we can check which function was called
+cast sig "method()" will print signature ex. 0xb60d4288
