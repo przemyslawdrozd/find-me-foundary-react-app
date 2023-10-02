@@ -66,18 +66,22 @@ function App() {
     try {
       // Get RPC URL from Metamask
       const provider = new ethers.providers.Web3Provider(window.ethereum as any);
+      console.debug(`Provider`, provider);
 
       // Get signer of provided account
       const signer = provider.getSigner();
+      console.debug(`signer`, signer);
 
       // Create instance of given contract
       const contract = new ethers.Contract(contractAddress, abi, signer);
+      console.debug(`contract`, contract);
 
       // Call fund method of contract and provide eth amount from input
       const transactionResponse = await contract.fund({
         value: ethers.utils.parseEther(ethAmount),
       });
 
+      console.debug(`transactionResponse`, transactionResponse);
       // Waiting for a blockchain response to confirm that the invoked contract method was executed
       await listenForTransactionMine(transactionResponse, provider);
     } catch (error) {
@@ -107,10 +111,22 @@ function App() {
     });
   }
 
+  const displayAddress = (): string => {
+    if (!connectedAddress.current) return 'Not connected';
+
+    // Extract the first 4 and last 4 characters of the address
+    const first4 = connectedAddress.current.slice(0, 4);
+    const last4 = connectedAddress.current.slice(-4);
+
+    // Shorten the address with an ellipsis in the middle
+    return `${first4}...${last4}`;
+  };
+
   return (
     <>
       <h1>Fund Me App</h1>
-      {connected ? <h2>Connected wallet: {connectedAddress.current}</h2> : <h2>Not connected</h2>}
+      <h2>Connected wallet: {displayAddress()}</h2>
+
       <button onClick={connect}>{connected ? 'Connected' : 'Connect'}</button>
       <button onClick={getBalance}>Get Balance</button>
       <button onClick={withdraw}>Withdraw</button>
