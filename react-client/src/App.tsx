@@ -64,12 +64,21 @@ function App() {
     if (typeof window.ethereum === 'undefined') return console.debug('Require install metamask');
 
     try {
+      // Get RPC URL from Metamask
       const provider = new ethers.providers.Web3Provider(window.ethereum as any);
+
+      // Get signer of provided account
       const signer = provider.getSigner();
+
+      // Create instance of given contract
       const contract = new ethers.Contract(contractAddress, abi, signer);
+
+      // Call fund method of contract and provide eth amount from input
       const transactionResponse = await contract.fund({
         value: ethers.utils.parseEther(ethAmount),
       });
+
+      // Waiting for a blockchain response to confirm that the invoked contract method was executed
       await listenForTransactionMine(transactionResponse, provider);
     } catch (error) {
       console.log('Fund issue', error);
@@ -92,7 +101,7 @@ function App() {
     console.debug(`Mining ${transactionResponse.hash}`);
     return new Promise<void>((resolve, reject) => {
       provider.once(transactionResponse.hash, (transactionReceipt: any) => {
-        console.log(`Completed with ${transactionReceipt.confirmations} confirmations. `);
+        console.log(`Completed with ${transactionReceipt.confirmations} confirmations.`);
         resolve();
       });
     });
