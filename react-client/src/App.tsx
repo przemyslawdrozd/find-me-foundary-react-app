@@ -77,8 +77,10 @@ function App() {
       console.debug(`contract`, contract);
 
       // Call fund method of contract and provide eth amount from input
+      const parsedEth = ethers.utils.parseEther(ethAmount);
+      console.log('Parsed value to abi fund method', parsedEth);
       const transactionResponse = await contract.fund({
-        value: ethers.utils.parseEther(ethAmount),
+        value: parsedEth,
       });
 
       console.debug(`transactionResponse`, transactionResponse);
@@ -115,7 +117,7 @@ function App() {
     if (!connectedAddress.current) return 'Not connected';
 
     // Extract the first 4 and last 4 characters of the address
-    const first4 = connectedAddress.current.slice(0, 4);
+    const first4 = connectedAddress.current.slice(0, 5);
     const last4 = connectedAddress.current.slice(-4);
 
     // Shorten the address with an ellipsis in the middle
