@@ -105,7 +105,7 @@ function App() {
 
   function listenForTransactionMine(transactionResponse: any, provider: any) {
     console.debug(`Mining ${transactionResponse.hash}`);
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<void>((resolve) => {
       provider.once(transactionResponse.hash, (transactionReceipt: any) => {
         console.log(`Completed with ${transactionReceipt.confirmations} confirmations.`);
         resolve();
