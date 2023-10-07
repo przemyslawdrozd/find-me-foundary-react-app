@@ -28,8 +28,6 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: go to react client directory
-        uses: cd react-client
       - name: Checkout
         uses: actions/checkout@v3
       - name: Set up Node
